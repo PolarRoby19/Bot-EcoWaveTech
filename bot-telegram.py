@@ -1,3 +1,6 @@
+#pip install python-telegram-bot
+#pip install python-telegram-bot --upgrade
+
 from typing import Final
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
