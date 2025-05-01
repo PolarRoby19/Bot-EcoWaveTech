@@ -1,12 +1,25 @@
-#pip install python-telegram-bot
-#pip install python-telegram-bot --upgrade
-
+import os
 from typing import Final
+from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-TOKEN: Final = '8006774425:AAHdbzhelzOgnB7IiUxfvmlfj2R6d0rbhFk'
-BOT_USERNAME: Final = '@EcoWaveTech_bot'
+# Carica le variabili d'ambiente dal file .env
+load_dotenv()
+
+# Ottieni il token e il nome utente del bot dalle variabili d'ambiente
+TOKEN: Final = os.getenv('TELEGRAM_BOT_TOKEN')
+BOT_USERNAME: Final = os.getenv('BOT_USERNAME')
+
+# Verifica se il token è stato caricato correttamente
+if TOKEN is None:
+    print("Errore: La variabile d'ambiente TELEGRAM_BOT_TOKEN non è stata trovata nel file .env")
+    exit()
+
+# Verifica se il nome utente del bot è stato caricato correttamente
+if BOT_USERNAME is None:
+    print("Errore: La variabile d'ambiente BOT_USERNAME non è stata trovata nel file .env")
+    exit()
 
 # command
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
