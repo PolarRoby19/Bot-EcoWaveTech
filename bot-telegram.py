@@ -13,12 +13,12 @@ BOT_USERNAME: Final = os.getenv('BOT_USERNAME')
 
 # Verifica se il token è stato caricato correttamente
 if TOKEN is None:
-    print("Errore: La variabile d'ambiente TELEGRAM_BOT_TOKEN non è stata trovata nel file .env")
+    print("Errore: La variabile d'ambiente TELEGRAM_BOT_TOKEN non è stata trovata")
     exit()
 
 # Verifica se il nome utente del bot è stato caricato correttamente
 if BOT_USERNAME is None:
-    print("Errore: La variabile d'ambiente BOT_USERNAME non è stata trovata nel file .env")
+    print("Errore: La variabile d'ambiente BOT_USERNAME non è stata trovata")
     exit()
 
 # command
