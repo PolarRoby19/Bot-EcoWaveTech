@@ -28,12 +28,31 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Carica un immagine del pesce di cui vuoi sapere la famiglia")
 
+# Funzione per inviare una foto a un utente specifico tramite il suo ID
+async def send_photo_to_user(context: ContextTypes.DEFAULT_TYPE, user_id: int, photo_path: str = None, photo_bytes: bytes = None, caption: str = None):
+    try:
+        if photo_path:
+            await context.bot.send_photo(chat_id=user_id, photo=photo_path, caption=caption)
+            print(f"Foto inviata all'utente {user_id} dal percorso: {photo_path}")
+        elif photo_bytes:
+            await context.bot.send_photo(chat_id=user_id, photo=photo_bytes, caption=caption)
+            print(f"Foto inviata all'utente {user_id} dai bytes.")
+        else:
+            print(f"Errore: Nessun percorso o bytes forniti per l'invio della foto all'utente {user_id}.")
+    except Exception as e:
+        print(f"Errore nell'invio della foto all'utente {user_id}: {e}")
+
+specific_user_id_str: str | None = os.getenv("SPECIFIC_USER_ID")
+SPECIFIC_USER_ID: Final = int(specific_user_id_str) if specific_user_id_str else None
+IMAGE_TO_SEND_PATH: Final = os.getenv("IMAGE_TO_SEND_PATH")
+IMAGE_CAPTION: Final = os.getenv("IMAGE_CAPTION")
+
 # text response
 def handle_response(text: str) -> str:
     processed: str = text.lower()
 
     if 'ciao' in processed:
-        return 'Buongiorno👋 se vuoi sapere come funziono scrivi "\help"'
+        return 'Buongiorno👋 se vuoi sapere come funziono scrivi "/help"'
 
     if 'arrivederci' in processed:
         return 'Buonagiornata 👋'
@@ -46,9 +65,10 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type: str = update.message.chat.type
+    user_id = update.message.chat.id
     text: str = update.message.text
 
-    print(f'Utente ({update.message.chat.id}) in {message_type}: "{text}"')
+    print(f'Utente ({user_id}) in {message_type}: "{text}"')
 
     if message_type == 'group':
         if BOT_USERNAME in text:
@@ -56,14 +76,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             response: str = handle_response(new_text)
         else:
             return
-    else:
-        response: str = handle_response(text)
-
-    print('Bot:', response)
-    await update.message.reply_text(response)
+    elif message_type == 'private':
+        if user_id == SPECIFIC_USER_ID and 'ciao' in text.lower():
+            await send_photo_to_user(context, user_id, photo_path=IMAGE_TO_SEND_PATH, caption=IMAGE_CAPTION)
+        elif user_id != SPECIFIC_USER_ID and 'ciao' in text.lower():
+            response: str = handle_response(text)
+            print('Bot:', response)
+            await update.message.reply_text(response)
+        else:
+            response: str = handle_response(text)
+            print('Bot:', response)
+            await update.message.reply_text(response)
 
 async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     chat_id = update.message.chat_id
     photo = update.message.photo[-1]
     await context.bot.send_photo(chat_id=chat_id, photo=photo.file_id, caption="Ecco la tua immagine!")
